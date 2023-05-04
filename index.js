@@ -11,9 +11,12 @@ import { fileURLToPath } from "url";
 import authRoutes from "./routes/auth.js";
 import { register } from "./controllers/auth.js";
 import { createPost } from "./controllers/posts.js";
-import userRoutes from "./routes/users.js"
-import postRoutes from "./routes/posts.js"
+import userRoutes from "./routes/users.js";
+import postRoutes from "./routes/posts.js";
 import { verifyToken } from "./middleware/auth.js";
+import User from "./models/User.js";
+import Post from "./models/Post.js";
+import { posts, users } from "./data/index.js";
 
 /** CONFIGURATIONS */
 const __filename = fileURLToPath(import.meta.url); // when only using import
@@ -42,7 +45,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 /** ROUTES WITH FILES */
-app.post("/auth/register", upload.single("picture") , register );
+app.post("/auth/register", upload.single("picture"), register);
 app.post("/posts", verifyToken, upload.single("picture"), createPost);
 
 /** ROUTES */
@@ -57,7 +60,11 @@ mongoose
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() =>
-    app.listen(PORT, () => console.log(`Server running on port: ${PORT}`))
-  )
+  .then(() => {
+    app.listen(PORT, () => console.log(`Server running on port: ${PORT}`));
+
+    /** ONE TIME ONLY */
+    // User.insertMany(users);
+    // Post.insertMany(posts);
+  })
   .catch((error) => console.log(error.message));
